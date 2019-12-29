@@ -22,7 +22,7 @@ public class MetodoRutas {
 
     /*  Se agregó este método para controlar que el archivo de almacenamiento exista        */
     /*  caso contrario lo selecciona y guarda su respectiva ruta para poder ser utilizada   */
-    /*  mas adelante en otros procesos                                                      */    
+    /*  mas adelante en otros procesos                                                      */   
     public String SeleccionaArchivoCorrecto(){
       File archivo= new File("C:\\Rutas.txt");
         if (!archivo.exists()){
