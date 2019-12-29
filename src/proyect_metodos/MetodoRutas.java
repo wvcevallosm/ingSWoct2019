@@ -110,24 +110,28 @@ public class MetodoRutas {
      //Se incorpora nuevo método para validar la Ruta correcta  
     public Vector BuscarRuta(String unaRuta){
         try {
-            RutaCorrecta=SeleccionaArchivoCorrecto();             
-            FileReader fr = new FileReader(RutaCorrecta);
-            BufferedReader br = new BufferedReader(fr);
-            String d;
-            while ((d=br.readLine())!=null){
-                StringTokenizer dato = new StringTokenizer (d,"|");
-                Vector x = new Vector();
-                while (dato.hasMoreTokens()){
-                    x.addElement(dato.nextToken());
+            RutaCorrecta=SeleccionaArchivoCorrecto();   
+            if (RutaCorrecta!="") {
+                FileReader fr = new FileReader(RutaCorrecta);
+                BufferedReader br = new BufferedReader(fr);
+                String d;
+                while ((d=br.readLine())!=null){
+                    StringTokenizer dato = new StringTokenizer (d,"|");
+                    Vector x = new Vector();
+                    while (dato.hasMoreTokens()){
+                        x.addElement(dato.nextToken());
+                        }
+                            String a = x.elementAt(1).toString();
+                            if(a.equals(unaRuta)){
+                                vPrincipal=x;
+                                System.out.println(vPrincipal);     
                     }
-                        String a = x.elementAt(1).toString();
-                        if(a.equals(unaRuta)){
-                            vPrincipal=x;
-                            System.out.println(vPrincipal);     
-                }
-            }br.close();
-            fr.close();
-        }catch (Exception e){
+                }br.close();
+                fr.close();           
+            }else{
+                JOptionPane.showMessageDialog(null, "Selección de Archivo incorrecto, ruta no encontrada");
+            }
+          }catch (Exception e){
         JOptionPane.showMessageDialog(null, e);
         }       
         return vPrincipal;
