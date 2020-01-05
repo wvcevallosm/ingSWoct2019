@@ -24,7 +24,7 @@ public class MetodoRutas {
     /*  caso contrario lo selecciona y guarda su respectiva ruta para poder ser utilizada   */
     /*  mas adelante en otros procesos                                                      */   
     public String SeleccionaArchivoCorrecto(){
-      File archivo= new File("C:\\Rutas.txt");
+        File archivo= new File("C:\\Rutas.txt");
         if (!archivo.exists()){
             JOptionPane.showMessageDialog(null, "Archivo no existe, favor seleccionar");
             JFileChooser seleccionaFile = new JFileChooser();

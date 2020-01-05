@@ -2,7 +2,11 @@ package proyect_gui;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
+import java.io.IOException;
+import java.util.StringTokenizer;
 import java.util.Vector;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
@@ -19,7 +23,8 @@ public class GUI_RegistroUsuarios extends javax.swing.JFrame {
     MetodoUsuario eliminar = new MetodoUsuario();
     DefaultTableModel mdlTablaU;
     Vector vCabeceras = new Vector();
-    Vector v = new Vector();
+    Metodos validacion=new Metodos();
+    boolean editarRegistro=false;
     
     public GUI_RegistroUsuarios() {
         initComponents();
@@ -320,7 +325,7 @@ public class GUI_RegistroUsuarios extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
    public boolean ValidacionIngresos(){
         boolean resultado=true;
-        Metodos validacion=new Metodos();
+
         
         boolean validaCampo=false;
         validaCampo=validacion.esVacio(txt_u_id.getText());
@@ -359,34 +364,92 @@ public class GUI_RegistroUsuarios extends javax.swing.JFrame {
             resultado=false;
             return resultado;
         }        
-         validaCampo=validacion.esVacio(txt_u_id_busca.getText());
-        if (validaCampo==false) {
-            JOptionPane.showMessageDialog(rootPane, "Debe ingresar ID válido a buscar");
-            txt_u_id_busca.requestFocus();
-            resultado=false;
-            return resultado;
-        }
         return resultado;
     }//Fin de métodos validación de Ingresos
-       
+    
+   
     
     private void btn_u_guardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_u_guardarActionPerformed
         if (ValidacionIngresos()){
-          mdlTablaU = new DefaultTableModel();
-          int id_u = Integer.parseInt(txt_u_id.getText());
-          String nombre_u = txt_u_nombre.getText();
-          String apellido_u = txt_u_apellido.getText();
-          String user_u = txt_u_user.getText();
-          String password_u = txt_u_password.getText();
-          usuario.setId_usuario(id_u);
-          usuario.setNombre_usuario(nombre_u);
-          usuario.setApellido_usuario(apellido_u);
-          usuario.setUsarname(user_u);
-          usuario.setPassword(password_u);
-          metodos.guardarUsuario(usuario);
-          metodos.guardarArchivoUsuario(usuario);
-          table_usuario.setModel(metodos.listaUsuario());      
-        }
+            if(editarRegistro){
+                Vector vEditar = new Vector();       
+                String idUsuario = txt_u_id.getText();
+                vEditar = buscar.EditarRegistro(idUsuario);              
+                if (!vEditar.isEmpty()){
+                    try {
+                        //Crear archivo Temporal
+                        if (!validacion.crearArchivoTMP("usuarioTMP.txt")){
+                            JOptionPane.showMessageDialog(rootPane, "Error al crear archivo Temporal!");                       
+                            return;
+                        }
+                    } catch (IOException ex) {
+                        Logger.getLogger(GUI_RegistroUsuarios.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                    //Recorrer el vector y agregar los registros
+                    int i=0;
+                    while (i <= vEditar.size()-1){
+                        StringTokenizer linea = new StringTokenizer (vEditar.elementAt(i).toString(),"|");
+                        Vector x = new Vector();
+                        while (linea.hasMoreTokens()){
+                             x.addElement(linea.nextToken());
+                         }                       
+                        int id_u =Integer.parseInt(x.elementAt(0).toString());
+                        usuario.setId_usuario(id_u);
+                        usuario.setNombre_usuario(x.elementAt(1).toString());
+                        usuario.setApellido_usuario(x.elementAt(2).toString());
+                        usuario.setUsarname(x.elementAt(3).toString());
+                        usuario.setPassword(x.elementAt(4).toString());
+                        metodos.EditarUsuario(usuario);
+                        i++;
+                    }//fin de ciclo While
+                    //Eliminar archivo original
+                    boolean resultaElimina=validacion.eliminarArchivoOriginal("C:\\ArchivosTexto\\usuario.txt");
+                    if(resultaElimina){
+                        //Renombrar archivo temporal
+                        boolean resultadoRenombrar=validacion.renombrarArchivoTmp("C:\\ArchivosTexto\\usuario.txt","C:\\ArchivosTexto\\usuarioTMP.txt");
+                        if (!resultadoRenombrar){
+                            JOptionPane.showMessageDialog(rootPane, "Error al renombrar archivo Temporal!");
+                            return;                       
+                        }
+                    }else{
+                        JOptionPane.showMessageDialog(rootPane, "Error al eliminar archivo Original!");
+                        return;
+                    }
+                    //Agrego el registro que se encuentra en el formulario               
+                    int id_u = Integer.parseInt(txt_u_id.getText());
+                    String nombre_u = txt_u_nombre.getText();
+                    String apellido_u = txt_u_apellido.getText();
+                    String user_u = txt_u_user.getText();
+                    String password_u = txt_u_password.getText();
+                    usuario.setId_usuario(id_u);
+                    usuario.setNombre_usuario(nombre_u);
+                    usuario.setApellido_usuario(apellido_u);
+                    usuario.setUsarname(user_u);
+                    usuario.setPassword(password_u);
+                    metodos.guardarUsuario(usuario);
+                    metodos.guardarArchivoUsuario(usuario);
+                    table_usuario.setModel(metodos.listaUsuario());   
+                    JOptionPane.showMessageDialog(rootPane, "Registro actualizado Satisfactoriamente");                   
+                }//fin de edición de Registros
+            }else{
+                mdlTablaU = new DefaultTableModel();
+                int id_u = Integer.parseInt(txt_u_id.getText());
+                String nombre_u = txt_u_nombre.getText();
+                String apellido_u = txt_u_apellido.getText();
+                String user_u = txt_u_user.getText();
+                String password_u = txt_u_password.getText();
+                usuario.setId_usuario(id_u);
+                usuario.setNombre_usuario(nombre_u);
+                usuario.setApellido_usuario(apellido_u);
+                usuario.setUsarname(user_u);
+                usuario.setPassword(password_u);
+                metodos.guardarUsuario(usuario);
+                metodos.guardarArchivoUsuario(usuario);
+                table_usuario.setModel(metodos.listaUsuario()); 
+                JOptionPane.showMessageDialog(rootPane, "Registro ingresado Satisfactoriamente"); 
+            }//Guardar datos nuevos
+            limpiarTextos();
+        }//Fin de validación de ingresos
     }//GEN-LAST:event_btn_u_guardarActionPerformed
 
     private void btn_u_salirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_u_salirActionPerformed
@@ -397,24 +460,120 @@ public class GUI_RegistroUsuarios extends javax.swing.JFrame {
     }//GEN-LAST:event_btn_u_salirActionPerformed
 
     private void btn_u_nuevoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_u_nuevoActionPerformed
+        limpiarTextos();
+    }//GEN-LAST:event_btn_u_nuevoActionPerformed
+    private void limpiarTextos(){
         // Limpia los Jtext:
         txt_u_id.setText("");
         txt_u_nombre.setText("");
         txt_u_apellido.setText("");
         txt_u_password.setText("");
-        txt_u_user.setText("");
-    }//GEN-LAST:event_btn_u_nuevoActionPerformed
-
+        txt_u_user.setText("");   
+        txt_u_id_busca.setText("");
+        boolean editarRegistro=false;
+    }
     private void btn_u_eliminarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_u_eliminarActionPerformed
-       
-
-        
+        boolean validaCampoID=validacion.esVacio(txt_u_id_busca.getText());
+        if (validaCampoID==false) {
+            JOptionPane.showMessageDialog(rootPane, "Debe ingresar ID válido a eliminar!");
+            txt_u_id_busca.requestFocus();
+            return;
+        }
+        //Incorporar código para eliminar registro seleccionado.
+        Vector v = new Vector();       
+        String idUsuario = txt_u_id_busca.getText();
+        v = buscar.BuscarUsuario(idUsuario);
+        if (!v.isEmpty()){
+            txt_u_id.setText((String) v.elementAt(0));
+            txt_u_nombre.setText((String) v.elementAt(1));
+            txt_u_apellido.setText((String) v.elementAt(2));
+            txt_u_user.setText((String) v.elementAt(3));       
+            txt_u_password.setText((String) v.elementAt(4));
+            if (JOptionPane.showConfirmDialog(rootPane, "Se eliminará el registro, ¿desea continuar?",
+                "Eliminar Registro", JOptionPane.WARNING_MESSAGE, JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION)           
+                eliminarRegistro();
+            limpiarTextos();    
+        }else{
+           JOptionPane.showMessageDialog(rootPane, "No se encuentra el Id a buscar");
+            txt_u_id_busca.requestFocus();
+        }        
+ 
     }//GEN-LAST:event_btn_u_eliminarActionPerformed
 
+    private void eliminarRegistro(){
+        Vector vEditar = new Vector();       
+        String idUsuario = txt_u_id.getText();
+        vEditar = buscar.EditarRegistro(idUsuario);              
+         if (!vEditar.isEmpty()){
+             try {
+                 //Crear archivo Temporal
+                 if (!validacion.crearArchivoTMP("usuarioTMP.txt")){
+                     JOptionPane.showMessageDialog(rootPane, "Error al crear archivo Temporal!");                       
+                     return;
+                 }
+             } catch (IOException ex) {
+                 Logger.getLogger(GUI_RegistroUsuarios.class.getName()).log(Level.SEVERE, null, ex);
+             }
+             //Recorrer el vector y agregar los registros
+             int i=0;
+             while (i <= vEditar.size()-1){
+                 StringTokenizer linea = new StringTokenizer (vEditar.elementAt(i).toString(),"|");
+                 Vector x = new Vector();
+                 while (linea.hasMoreTokens()){
+                      x.addElement(linea.nextToken());
+                  }                       
+                 int id_u =Integer.parseInt(x.elementAt(0).toString());
+                 usuario.setId_usuario(id_u);
+                 usuario.setNombre_usuario(x.elementAt(1).toString());
+                 usuario.setApellido_usuario(x.elementAt(2).toString());
+                 usuario.setUsarname(x.elementAt(3).toString());
+                 usuario.setPassword(x.elementAt(4).toString());
+                 metodos.EditarUsuario(usuario);
+                 i++;
+             }//fin de ciclo While
+             //Eliminar archivo original
+             boolean resultaElimina=validacion.eliminarArchivoOriginal("C:\\ArchivosTexto\\usuario.txt");
+             if(resultaElimina){
+                 //Renombrar archivo temporal
+                 boolean resultadoRenombrar=validacion.renombrarArchivoTmp("C:\\ArchivosTexto\\usuario.txt","C:\\ArchivosTexto\\usuarioTMP.txt");
+                 if (!resultadoRenombrar){
+                     JOptionPane.showMessageDialog(rootPane, "Error al renombrar archivo Temporal!");
+                     return;                       
+                 }
+             }else{
+                 JOptionPane.showMessageDialog(rootPane, "Error al eliminar archivo Original!");
+                 return;
+             }
+             table_usuario.setModel(metodos.listaUsuario());   
+             JOptionPane.showMessageDialog(rootPane, "Registro eliminado Satisfactoriamente");                   
+         }//fin de eliminar Registro    
+    }
+    
+    
     private void btn_u_editarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_u_editarActionPerformed
-       
-        
-        
+        //Validar que exista campo id usuario a Buscar
+        editarRegistro=false;
+        boolean validaCampoID=validacion.esVacio(txt_u_id_busca.getText());
+        if (validaCampoID==false) {
+            JOptionPane.showMessageDialog(rootPane, "Debe ingresar ID válido a buscar");
+            txt_u_id_busca.requestFocus();
+            return;
+        }
+        //Incorporar código para búsqueda de Id de usuario y Edición
+        Vector v = new Vector();       
+        String idUsuario = txt_u_id_busca.getText();
+        v = buscar.BuscarUsuario(idUsuario);
+        if (!v.isEmpty()){
+            txt_u_id.setText((String) v.elementAt(0));
+            txt_u_nombre.setText((String) v.elementAt(1));
+            txt_u_apellido.setText((String) v.elementAt(2));
+            txt_u_user.setText((String) v.elementAt(3));       
+            txt_u_password.setText((String) v.elementAt(4)); 
+            editarRegistro=true;
+        }else{
+           JOptionPane.showMessageDialog(rootPane, "No se encuentra el Id a buscar");
+            txt_u_id_busca.requestFocus();
+        }
     }//GEN-LAST:event_btn_u_editarActionPerformed
 
     private void txt_u_idKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txt_u_idKeyTyped

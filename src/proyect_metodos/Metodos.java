@@ -62,7 +62,34 @@ public class Metodos {
         }
         return mdlTabla;
     }
+    public boolean renombrarArchivoTmp(String archivoOriginal,String archivoTMP){
+        boolean resultado=false;
+        File ficheroTMP=new File (archivoTMP);
+        File ficheroOriginal=new File (archivoOriginal);
+        resultado = ficheroTMP.renameTo(ficheroOriginal);
+        return resultado;
+    }
+
+    public boolean crearArchivoTMP (String archivoTMP) throws IOException{
+        boolean resultado=false;
+ 	FileWriter archivo = new FileWriter("C:\\ArchivosTexto\\"+archivoTMP);
+        archivo.close();
+        File archivoCreado = new File("C:\\ArchivosTexto\\"+archivoTMP);
+        if (archivoCreado.exists()){
+            resultado=true;
+        }
+        return resultado;
+    }
     
+    
+    public boolean eliminarArchivoOriginal(String nombreArchivo){
+        boolean resultado=false;
+        File fichero = new File (nombreArchivo);
+        if (fichero.delete()){
+            resultado=true;
+        }
+        return resultado;
+    }
     public boolean esVacio(String valor){
         if (valor.isEmpty()) {
             return false;
