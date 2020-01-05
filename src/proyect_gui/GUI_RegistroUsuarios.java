@@ -9,6 +9,7 @@ import javax.swing.table.DefaultTableModel;
 import proyect_clases.Usuario;
 import proyect_metodos.MetodoUsuario;
 import proyect_metodos.MetodoBoleto;
+import proyect_metodos.Metodos;
 
 public class GUI_RegistroUsuarios extends javax.swing.JFrame {
 
@@ -93,11 +94,41 @@ public class GUI_RegistroUsuarios extends javax.swing.JFrame {
 
         jLabel1.setText("Nombre :");
 
+        txt_u_nombre.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                txt_u_nombreKeyTyped(evt);
+            }
+        });
+
         jLabel2.setText("Apellido :");
+
+        txt_u_apellido.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                txt_u_apellidoKeyTyped(evt);
+            }
+        });
 
         jLabel4.setText("Username :");
 
+        txt_u_user.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                txt_u_userKeyTyped(evt);
+            }
+        });
+
         jLabel3.setText("Clave :");
+
+        txt_u_password.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                txt_u_passwordKeyTyped(evt);
+            }
+        });
+
+        txt_u_id.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                txt_u_idKeyTyped(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -157,6 +188,12 @@ public class GUI_RegistroUsuarios extends javax.swing.JFrame {
         jLabel7.setText("BUSQUEDA Y EDITAR DE  USUARIOS:");
 
         jLabel8.setText("Id Usuario :");
+
+        txt_u_id_busca.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                txt_u_id_buscaKeyTyped(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
@@ -281,25 +318,75 @@ public class GUI_RegistroUsuarios extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
-    private void btn_u_guardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_u_guardarActionPerformed
-        // TODO add your handling code here:
-
-        mdlTablaU = new DefaultTableModel();
+   public boolean ValidacionIngresos(){
+        boolean resultado=true;
+        Metodos validacion=new Metodos();
         
-        int id_u = Integer.parseInt(txt_u_id.getText());
-        String nombre_u = txt_u_nombre.getText();
-        String apellido_u = txt_u_apellido.getText();
-        String user_u = txt_u_user.getText();
-        String password_u = txt_u_password.getText();
-        usuario.setId_usuario(id_u);
-        usuario.setNombre_usuario(nombre_u);
-        usuario.setApellido_usuario(apellido_u);
-        usuario.setUsarname(user_u);
-        usuario.setPassword(password_u);
-        metodos.guardarUsuario(usuario);
-        metodos.guardarArchivoUsuario(usuario);
-        table_usuario.setModel(metodos.listaUsuario());
+        boolean validaCampo=false;
+        validaCampo=validacion.esVacio(txt_u_id.getText());
+        if (validaCampo==false) {
+            JOptionPane.showMessageDialog(rootPane, "Debe ingresar valores en ID");
+            txt_u_id.requestFocus();
+            resultado=false;
+            return resultado;
+        }
+       validaCampo=validacion.esVacio(txt_u_nombre.getText());
+        if (validaCampo==false) {
+            JOptionPane.showMessageDialog(rootPane, "Debe ingresar nombre de Usuario válido");
+            txt_u_nombre.requestFocus();
+            resultado=false;
+            return resultado;
+        }     
+     validaCampo=validacion.esVacio(txt_u_apellido.getText());
+        if (validaCampo==false) {
+            JOptionPane.showMessageDialog(rootPane, "Debe ingresar apellido de Usuario válido");
+            txt_u_apellido.requestFocus();
+            resultado=false;
+            return resultado;
+        }             
+        
+        validaCampo=validacion.esVacio(txt_u_user.getText());
+        if (validaCampo==false) {
+            JOptionPane.showMessageDialog(rootPane, "Debe ingresar usuario válido");
+            txt_u_user.requestFocus();
+            resultado=false;
+            return resultado;
+        }      
+        validaCampo=validacion.esVacio(txt_u_password.getText());
+        if (validaCampo==false) {
+            JOptionPane.showMessageDialog(rootPane, "Debe ingresar Password válido");
+            txt_u_password.requestFocus();
+            resultado=false;
+            return resultado;
+        }        
+         validaCampo=validacion.esVacio(txt_u_id_busca.getText());
+        if (validaCampo==false) {
+            JOptionPane.showMessageDialog(rootPane, "Debe ingresar ID válido a buscar");
+            txt_u_id_busca.requestFocus();
+            resultado=false;
+            return resultado;
+        }
+        return resultado;
+    }//Fin de métodos validación de Ingresos
+       
+    
+    private void btn_u_guardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_u_guardarActionPerformed
+        if (ValidacionIngresos()){
+          mdlTablaU = new DefaultTableModel();
+          int id_u = Integer.parseInt(txt_u_id.getText());
+          String nombre_u = txt_u_nombre.getText();
+          String apellido_u = txt_u_apellido.getText();
+          String user_u = txt_u_user.getText();
+          String password_u = txt_u_password.getText();
+          usuario.setId_usuario(id_u);
+          usuario.setNombre_usuario(nombre_u);
+          usuario.setApellido_usuario(apellido_u);
+          usuario.setUsarname(user_u);
+          usuario.setPassword(password_u);
+          metodos.guardarUsuario(usuario);
+          metodos.guardarArchivoUsuario(usuario);
+          table_usuario.setModel(metodos.listaUsuario());      
+        }
     }//GEN-LAST:event_btn_u_guardarActionPerformed
 
     private void btn_u_salirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_u_salirActionPerformed
@@ -329,6 +416,60 @@ public class GUI_RegistroUsuarios extends javax.swing.JFrame {
         
         
     }//GEN-LAST:event_btn_u_editarActionPerformed
+
+    private void txt_u_idKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txt_u_idKeyTyped
+       char ingreso=evt.getKeyChar();
+        if (!Character.isDigit(ingreso)) {
+            getToolkit().beep();
+            evt.consume();
+            JOptionPane.showMessageDialog(rootPane, "Ingresar solo números");
+        } 
+    }//GEN-LAST:event_txt_u_idKeyTyped
+
+    private void txt_u_nombreKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txt_u_nombreKeyTyped
+       char ingreso=evt.getKeyChar();
+        if (!Character.isLetterOrDigit(ingreso)) {
+            getToolkit().beep();
+            evt.consume();
+            JOptionPane.showMessageDialog(rootPane, "Debe ingresar letras o números");
+        }
+    }//GEN-LAST:event_txt_u_nombreKeyTyped
+
+    private void txt_u_apellidoKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txt_u_apellidoKeyTyped
+       char ingreso=evt.getKeyChar();
+        if (!Character.isLetterOrDigit(ingreso)) {
+            getToolkit().beep();
+            evt.consume();
+            JOptionPane.showMessageDialog(rootPane, "Debe ingresar letras o números");
+        }
+    }//GEN-LAST:event_txt_u_apellidoKeyTyped
+
+    private void txt_u_userKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txt_u_userKeyTyped
+       char ingreso=evt.getKeyChar();
+        if (!Character.isLetterOrDigit(ingreso)) {
+            getToolkit().beep();
+            evt.consume();
+            JOptionPane.showMessageDialog(rootPane, "Debe ingresar letras o números");
+        }
+    }//GEN-LAST:event_txt_u_userKeyTyped
+
+    private void txt_u_passwordKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txt_u_passwordKeyTyped
+       char ingreso=evt.getKeyChar();
+        if (!Character.isLetterOrDigit(ingreso)) {
+            getToolkit().beep();
+            evt.consume();
+            JOptionPane.showMessageDialog(rootPane, "Debe ingresar letras o números");
+        }
+    }//GEN-LAST:event_txt_u_passwordKeyTyped
+
+    private void txt_u_id_buscaKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txt_u_id_buscaKeyTyped
+     char ingreso=evt.getKeyChar();
+        if (!Character.isDigit(ingreso)) {
+            getToolkit().beep();
+            evt.consume();
+            JOptionPane.showMessageDialog(rootPane, "Ingresar solo números");
+        } 
+    }//GEN-LAST:event_txt_u_id_buscaKeyTyped
 
     /**
      * @param args the command line arguments

@@ -175,6 +175,9 @@
           </Properties>
         </Component>
         <Component class="javax.swing.JTextField" name="txt_u_nombre">
+          <Events>
+            <EventHandler event="keyTyped" listener="java.awt.event.KeyListener" parameters="java.awt.event.KeyEvent" handler="txt_u_nombreKeyTyped"/>
+          </Events>
         </Component>
         <Component class="javax.swing.JLabel" name="jLabel2">
           <Properties>
@@ -182,6 +185,9 @@
           </Properties>
         </Component>
         <Component class="javax.swing.JTextField" name="txt_u_apellido">
+          <Events>
+            <EventHandler event="keyTyped" listener="java.awt.event.KeyListener" parameters="java.awt.event.KeyEvent" handler="txt_u_apellidoKeyTyped"/>
+          </Events>
         </Component>
         <Component class="javax.swing.JLabel" name="jLabel4">
           <Properties>
@@ -189,6 +195,9 @@
           </Properties>
         </Component>
         <Component class="javax.swing.JTextField" name="txt_u_user">
+          <Events>
+            <EventHandler event="keyTyped" listener="java.awt.event.KeyListener" parameters="java.awt.event.KeyEvent" handler="txt_u_userKeyTyped"/>
+          </Events>
         </Component>
         <Component class="javax.swing.JLabel" name="jLabel3">
           <Properties>
@@ -196,8 +205,14 @@
           </Properties>
         </Component>
         <Component class="javax.swing.JTextField" name="txt_u_password">
+          <Events>
+            <EventHandler event="keyTyped" listener="java.awt.event.KeyListener" parameters="java.awt.event.KeyEvent" handler="txt_u_passwordKeyTyped"/>
+          </Events>
         </Component>
         <Component class="javax.swing.JTextField" name="txt_u_id">
+          <Events>
+            <EventHandler event="keyTyped" listener="java.awt.event.KeyListener" parameters="java.awt.event.KeyEvent" handler="txt_u_idKeyTyped"/>
+          </Events>
         </Component>
       </SubComponents>
     </Container>
@@ -246,6 +261,9 @@
           </Properties>
         </Component>
         <Component class="javax.swing.JTextField" name="txt_u_id_busca">
+          <Events>
+            <EventHandler event="keyTyped" listener="java.awt.event.KeyListener" parameters="java.awt.event.KeyEvent" handler="txt_u_id_buscaKeyTyped"/>
+          </Events>
         </Component>
       </SubComponents>
     </Container>

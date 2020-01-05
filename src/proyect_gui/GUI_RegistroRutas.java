@@ -3,8 +3,10 @@ package proyect_gui;
 import java.util.Vector;
 import javax.swing.table.DefaultTableModel;
 import java.util.Date;
+import javax.swing.JOptionPane;
 import proyect_clases.Rutas;
 import proyect_metodos.MetodoRutas;
+import proyect_metodos.Metodos;
 
 public class GUI_RegistroRutas extends javax.swing.JFrame {
 
@@ -99,15 +101,45 @@ public class GUI_RegistroRutas extends javax.swing.JFrame {
 
         jLabel3.setText("Costo Ruta");
 
+        txt_r_nombre.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                txt_r_nombreKeyTyped(evt);
+            }
+        });
+
         jLabel4.setText("Ruta");
 
+        txt_r_id.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                txt_r_idKeyTyped(evt);
+            }
+        });
+
         jLabel5.setText("Origen");
+
+        txt_r_origen.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                txt_r_origenKeyTyped(evt);
+            }
+        });
+
+        txt_r_destino.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                txt_r_destinoKeyTyped(evt);
+            }
+        });
 
         jLabel2.setText("Destino");
 
         jLabel10.setText("Fecha");
 
         jLabel6.setText("DATOS DE LA RUTA:");
+
+        txt_r_costo.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                txt_r_costoKeyTyped(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -291,32 +323,90 @@ public class GUI_RegistroRutas extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
-    private void btn_r_guardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_r_guardarActionPerformed
-        // TODO add your handling code here:
-
-        mdlTablaR = new DefaultTableModel();
-
-        int id_r = Integer.parseInt(txt_r_id.getText());
-        String nombre_r = txt_r_nombre.getText();
-        String origen_r = txt_r_origen.getText();
-        String destino_r = txt_r_destino.getText();
-        String costo_r = txt_r_costo.getText();
-        String hora_r = txt_r_hora.getText();
-        String fecha_r = txt_r_fecha.getText();
+    public boolean ValidacionIngresos(){
+        boolean resultado=true;
+        Metodos validacion=new Metodos();
         
-        ruta.setId_Ruta(id_r);
-        ruta.setNombre_Ruta(nombre_r);
-        ruta.setOrigen_Ruta(origen_r);
-        ruta.setDestino_Ruta(destino_r);
-        ruta.setCosto_Ruta(costo_r);
-        ruta.setHora_Ruta(hora_r);
-        ruta.setFecha_Ruta(fecha_r);
-        metodos.guardarRutas(ruta);
-        metodos.guardarArchivoRutas(ruta);
-        table_rutas.setModel(metodos.listaRutas());
-    }//GEN-LAST:event_btn_r_guardarActionPerformed
+        boolean validaCampo=false;
+        validaCampo=validacion.esVacio(txt_r_id.getText());
+        if (validaCampo==false) {
+            JOptionPane.showMessageDialog(rootPane, "Debe ingresar valores en ID");
+            txt_r_id.requestFocus();
+            resultado=false;
+            return resultado;
+        }
+       validaCampo=validacion.esVacio(txt_r_nombre.getText());
+        if (validaCampo==false) {
+            JOptionPane.showMessageDialog(rootPane, "Debe ingresar nombre de Ruta válida");
+            txt_r_nombre.requestFocus();
+            resultado=false;
+            return resultado;
+        }     
+        validaCampo=validacion.esVacio(txt_r_costo.getText());
+        if (validaCampo==false) {
+            JOptionPane.showMessageDialog(rootPane, "Debe ingresar Costo válido");
+            txt_r_costo.requestFocus();
+            resultado=false;
+            return resultado;
+        }      
+        validaCampo=validacion.esVacio(txt_r_origen.getText());
+        if (validaCampo==false) {
+            JOptionPane.showMessageDialog(rootPane, "Debe ingresar Origen válido");
+            txt_r_origen.requestFocus();
+            resultado=false;
+            return resultado;
+        }        
+         validaCampo=validacion.esVacio(txt_r_destino.getText());
+        if (validaCampo==false) {
+            JOptionPane.showMessageDialog(rootPane, "Debe ingresar Destino válido");
+            txt_r_destino.requestFocus();
+            resultado=false;
+            return resultado;
+        }        
+        validaCampo=validacion.esVacio(txt_r_fecha.getText());
+        if (validaCampo==false) {
+            JOptionPane.showMessageDialog(rootPane, "Debe ingresar Fecha válido");
+            txt_r_fecha.requestFocus();
+            resultado=false;
+            return resultado;
+        } 
+        validaCampo=validacion.esVacio(txt_r_hora.getText());
+        if (validaCampo==false) {
+            JOptionPane.showMessageDialog(rootPane, "Debe ingresar Hora válido");
+            txt_r_hora.requestFocus();
+            resultado=false;
+            return resultado;
+        }
+        return resultado;
+    }//Fin de métodos validación de Ingresos
+    
+    
+    private void btn_r_guardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_r_guardarActionPerformed
+        if (ValidacionIngresos()){
+            mdlTablaR = new DefaultTableModel();
+            int id_r = Integer.parseInt(txt_r_id.getText());
+            String nombre_r = txt_r_nombre.getText();
+            String origen_r = txt_r_origen.getText();
+            String destino_r = txt_r_destino.getText();
+            String costo_r = txt_r_costo.getText();
+            String hora_r = txt_r_hora.getText();
+            String fecha_r = txt_r_fecha.getText();
 
+            ruta.setId_Ruta(id_r);
+            ruta.setNombre_Ruta(nombre_r);
+            ruta.setOrigen_Ruta(origen_r);
+            ruta.setDestino_Ruta(destino_r);
+            ruta.setCosto_Ruta(costo_r);
+            ruta.setHora_Ruta(hora_r);
+            ruta.setFecha_Ruta(fecha_r);
+            metodos.guardarRutas(ruta);
+            metodos.guardarArchivoRutas(ruta);
+            table_rutas.setModel(metodos.listaRutas());       
+        } 
+    }//GEN-LAST:event_btn_r_guardarActionPerformed
+    
+    
+    
     private void btn_r_salirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_r_salirActionPerformed
         // TODO add your handling code here:
         GUI_Principal b = new GUI_Principal();
@@ -344,6 +434,47 @@ public class GUI_RegistroRutas extends javax.swing.JFrame {
         table_rutas.setModel(metodos.listaRutas());
     }//GEN-LAST:event_btn_r_actializarActionPerformed
 
+    //Validación de ingreso de datos numéricos en el campo ID
+    private void txt_r_idKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txt_r_idKeyTyped
+        char ingreso=evt.getKeyChar();
+        if (!Character.isDigit(ingreso)) {
+            getToolkit().beep();
+            evt.consume();
+            JOptionPane.showMessageDialog(rootPane, "Ingresar solo números");
+        }
+    }//GEN-LAST:event_txt_r_idKeyTyped
+
+    private void txt_r_nombreKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txt_r_nombreKeyTyped
+        char ingreso=evt.getKeyChar();
+        if (!Character.isLetterOrDigit(ingreso)) {
+            getToolkit().beep();
+            evt.consume();
+            JOptionPane.showMessageDialog(rootPane, "Debe ingresar letras o números");
+        }
+    }//GEN-LAST:event_txt_r_nombreKeyTyped
+
+    private void txt_r_costoKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txt_r_costoKeyTyped
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txt_r_costoKeyTyped
+
+    private void txt_r_origenKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txt_r_origenKeyTyped
+     char ingreso=evt.getKeyChar();
+        if (!Character.isLetterOrDigit(ingreso)) {
+            getToolkit().beep();
+            evt.consume();
+            JOptionPane.showMessageDialog(rootPane, "Debe ingresar letras o números");
+        }        
+    }//GEN-LAST:event_txt_r_origenKeyTyped
+
+    private void txt_r_destinoKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txt_r_destinoKeyTyped
+   char ingreso=evt.getKeyChar();
+        if (!Character.isLetterOrDigit(ingreso)) {
+            getToolkit().beep();
+            evt.consume();
+            JOptionPane.showMessageDialog(rootPane, "Debe ingresar letras o números");
+        }                
+    }//GEN-LAST:event_txt_r_destinoKeyTyped
+    
     /**
      * @param args the command line arguments
      */

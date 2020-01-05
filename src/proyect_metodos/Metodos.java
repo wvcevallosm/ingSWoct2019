@@ -62,5 +62,13 @@ public class Metodos {
         }
         return mdlTabla;
     }
-
+    
+    public boolean esVacio(String valor){
+        if (valor.isEmpty()) {
+            return false;
+        }
+        else{
+            return true;
+        }
+    }
 }
