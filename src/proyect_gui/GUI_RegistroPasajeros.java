@@ -5,6 +5,7 @@ import static java.awt.SystemColor.control;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.StringTokenizer;
 import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -12,6 +13,7 @@ import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 import proyect_metodos.MetodoPasajero;
 import proyect_clases.Pasajero;
+import proyect_metodos.Metodos;
 
 public class GUI_RegistroPasajeros extends javax.swing.JFrame {
 
@@ -19,6 +21,8 @@ public class GUI_RegistroPasajeros extends javax.swing.JFrame {
     MetodoPasajero metodos = new MetodoPasajero();
     DefaultTableModel mdlTablaP;
     Vector vCabeceras = new Vector();
+    Metodos validacion=new Metodos();    
+    boolean editarRegistro=false;    
     
     public GUI_RegistroPasajeros() {
         initComponents();
@@ -241,26 +245,92 @@ public class GUI_RegistroPasajeros extends javax.swing.JFrame {
     }
     
     private void btn_p_guardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_p_guardarActionPerformed
-        // TODO add your handling code here:
-        
-        mdlTablaP = new DefaultTableModel();
-      
-        String nombre_p = txt_p_nombre.getText();
-        String apellido_p = txt_p_apellido.getText();
-        String pasajero_p = txt_p_pasajero.getText();
-        int cedula_p = Integer.parseInt(txt_p_cedula.getText());
-        int edad_p = Integer.parseInt(txt_p_edad.getText());
-        
-        if( nombre_p.isEmpty()){JOptionPane.showMessageDialog(null, "Ingrese Nombre");}
-        
-        pasajero.setNombre_pasajero(nombre_p);
-        pasajero.setApellido_pasajero(apellido_p);
-        pasajero.setTipo_pasajero(pasajero_p);
-        pasajero.setCedula_pasajero(cedula_p);
-        pasajero.setEdad_pasajero(edad_p);
-        metodos.guardarPasajero(pasajero);
-        metodos.guardarArchivoPasajero(pasajero);
-        table_pasajero.setModel(metodos.listaPasajero());
+        if (ValidacionIngresos()){
+            if(editarRegistro){
+                Vector vEditar = new Vector();       
+                String idCedula = txt_p_cedula.getText();
+                vEditar = metodos.EditarPasajero(idCedula);              
+                if (!vEditar.isEmpty()){
+                    try {
+                        //Crear archivo Temporal
+                        if (!validacion.crearArchivoTMP("pasajeroTMP.txt")){
+                            JOptionPane.showMessageDialog(rootPane, "Error al crear archivo Temporal!");                       
+                            return;
+                        }
+                    } catch (IOException ex) {
+                        Logger.getLogger(GUI_RegistroUsuarios.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                    //Recorrer el vector y agregar los registros
+                    int i=0;
+                    while (i <= vEditar.size()-1){
+                        StringTokenizer linea = new StringTokenizer (vEditar.elementAt(i).toString(),"|");
+                        Vector x = new Vector();
+                        while (linea.hasMoreTokens()){
+                             x.addElement(linea.nextToken());
+                         }                       
+                        int id_cedula =Integer.parseInt(x.elementAt(0).toString());
+                        int edadPasajero=Integer.parseInt(x.elementAt(3).toString());
+                        
+                        pasajero.setCedula_pasajero(id_cedula);
+                        pasajero.setNombre_pasajero(x.elementAt(1).toString());
+                        pasajero.setApellido_pasajero(x.elementAt(2).toString());
+                        pasajero.setTipo_pasajero(x.elementAt(3).toString());
+                        pasajero.setEdad_pasajero(edadPasajero);
+                        metodos.EditaPasajero(pasajero);
+                        i++;
+                    }//fin de ciclo While               
+                    //Eliminar archivo original
+                    boolean resultaElimina=validacion.eliminarArchivoOriginal("C:\\ArchivosTexto\\pasajero.txt");
+                    if(resultaElimina){
+                        //Renombrar archivo temporal
+                        boolean resultadoRenombrar=validacion.renombrarArchivoTmp("C:\\ArchivosTexto\\pasajero.txt","C:\\ArchivosTexto\\pasajeroTMP.txt");
+                        if (!resultadoRenombrar){
+                            JOptionPane.showMessageDialog(rootPane, "Error al renombrar archivo Temporal!");
+                            return;                       
+                        }
+                    }else{
+                        JOptionPane.showMessageDialog(rootPane, "Error al eliminar archivo Original!");
+                        return;
+                    }                
+                    //Agrego el registro que se encuentra en el formulario   
+                    String nombre_p = txt_p_nombre.getText();
+                    String apellido_p = txt_p_apellido.getText();
+                    String pasajero_p = txt_p_pasajero.getText();
+                    int cedula_p = Integer.parseInt(txt_p_cedula.getText());
+                    int edad_p = Integer.parseInt(txt_p_edad.getText());
+                    if( nombre_p.isEmpty()){JOptionPane.showMessageDialog(null, "Ingrese Nombre");}
+                    pasajero.setNombre_pasajero(nombre_p);
+                    pasajero.setApellido_pasajero(apellido_p);
+                    pasajero.setTipo_pasajero(pasajero_p);
+                    pasajero.setCedula_pasajero(cedula_p);
+                    pasajero.setEdad_pasajero(edad_p);
+                    metodos.guardarPasajero(pasajero);
+                    metodos.guardarArchivoPasajero(pasajero);
+                    table_pasajero.setModel(metodos.listaPasajero());     
+                    JOptionPane.showMessageDialog(rootPane, "Registro actualizado Satisfactoriamente");       
+                }//fin de edición de Pasajeros
+            }else{
+                mdlTablaP = new DefaultTableModel();
+
+                String nombre_p = txt_p_nombre.getText();
+                String apellido_p = txt_p_apellido.getText();
+                String pasajero_p = txt_p_pasajero.getText();
+                int cedula_p = Integer.parseInt(txt_p_cedula.getText());
+                int edad_p = Integer.parseInt(txt_p_edad.getText());
+
+                if( nombre_p.isEmpty()){JOptionPane.showMessageDialog(null, "Ingrese Nombre");}
+
+                pasajero.setNombre_pasajero(nombre_p);
+                pasajero.setApellido_pasajero(apellido_p);
+                pasajero.setTipo_pasajero(pasajero_p);
+                pasajero.setCedula_pasajero(cedula_p);
+                pasajero.setEdad_pasajero(edad_p);
+                metodos.guardarPasajero(pasajero);
+                metodos.guardarArchivoPasajero(pasajero);
+                table_pasajero.setModel(metodos.listaPasajero());               
+            }//Guardar datos nuevos
+            limpiarTextos();
+        }//Fin de Validación de ingresos 
     }//GEN-LAST:event_btn_p_guardarActionPerformed
 
     private void btn_p_salirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_p_salirActionPerformed
@@ -271,18 +341,91 @@ public class GUI_RegistroPasajeros extends javax.swing.JFrame {
     }//GEN-LAST:event_btn_p_salirActionPerformed
 
     private void btn_p_eliminarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_p_eliminarActionPerformed
-              // Boton eliminar pasajeros en tabla:
+        //Edita por numero de cedula
+       //Validar que exista campo id usuario a Buscar
+        editarRegistro=false;
+        boolean validaCampoID=validacion.esVacio(txt_p_cedula.getText());
+        if (validaCampoID==false) {
+            JOptionPane.showMessageDialog(rootPane, "Debe ingresar Cédula correcta a buscar");
+            txt_p_cedula.requestFocus();
+            return;
+        }
+        //Incorporar código para búsqueda de Id de usuario y Edición
+        Vector v = new Vector();       
+        String idCedula = txt_p_cedula.getText();
+        v = metodos.BuscarPasajero(idCedula);
+        if (!v.isEmpty()){
+            txt_p_nombre.setText((String) v.elementAt(0));
+            txt_p_apellido.setText((String) v.elementAt(1));
+            txt_p_pasajero.setText((String) v.elementAt(2));
+            txt_p_cedula.setText((String) v.elementAt(3));       
+            txt_p_edad.setText((String) v.elementAt(4)); 
+            editarRegistro=true;
+        }else{
+           JOptionPane.showMessageDialog(rootPane, "No se encuentra la cédula a buscar");
+            txt_p_cedula.requestFocus();
+        }       
     }//GEN-LAST:event_btn_p_eliminarActionPerformed
    
     private void btn_p_nuevoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_p_nuevoActionPerformed
+        limpiarTextos();        
+  
+    }//GEN-LAST:event_btn_p_nuevoActionPerformed
+    private void limpiarTextos(){
         // Limpia los Jtext:
         txt_p_nombre.setText("");
         txt_p_apellido.setText("");
         txt_p_pasajero.setText("");
         txt_p_cedula.setText("");
         txt_p_edad.setText("");
-    }//GEN-LAST:event_btn_p_nuevoActionPerformed
+        boolean editarRegistro=false;
+    }
+    
+   public boolean ValidacionIngresos(){
+        boolean resultado=true;
 
+        
+        boolean validaCampo=false;
+        validaCampo=validacion.esVacio(txt_p_nombre.getText());
+        if (validaCampo==false) {
+            JOptionPane.showMessageDialog(rootPane, "Debe ingresar Nombre correcto");
+            txt_p_nombre.requestFocus();
+            resultado=false;
+            return resultado;
+        }
+       validaCampo=validacion.esVacio(txt_p_apellido.getText());
+        if (validaCampo==false) {
+            JOptionPane.showMessageDialog(rootPane, "Debe ingresar apellido de Pasajero válido");
+            txt_p_apellido.requestFocus();
+            resultado=false;
+            return resultado;
+        }     
+     validaCampo=validacion.esVacio(txt_p_edad.getText());
+        if (validaCampo==false) {
+            JOptionPane.showMessageDialog(rootPane, "Debe ingresar edad de Pasajero válido");
+            txt_p_edad.requestFocus();
+            resultado=false;
+            return resultado;
+        }             
+        
+        validaCampo=validacion.esVacio(txt_p_cedula.getText());
+        if (validaCampo==false) {
+            JOptionPane.showMessageDialog(rootPane, "Debe ingresar Cedula de Pasajero válido");
+            txt_p_cedula.requestFocus();
+            resultado=false;
+            return resultado;
+        }      
+        validaCampo=validacion.esVacio(txt_p_pasajero.getText());
+        if (validaCampo==false) {
+            JOptionPane.showMessageDialog(rootPane, "Debe ingresar Tipo de Pasajero válido");
+            txt_p_pasajero.requestFocus();
+            resultado=false;
+            return resultado;
+        }        
+        return resultado;
+    }//Fin de métodos validación de Ingresos 
+    
+    
     private void btn_p_actializarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_p_actializarActionPerformed
         // Carga los datos del archivo de texto con la base de datos de pasajeros:
         table_pasajero.setModel(metodos.listaPasajero());

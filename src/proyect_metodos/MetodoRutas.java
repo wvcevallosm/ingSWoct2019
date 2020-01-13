@@ -90,23 +90,23 @@ public class MetodoRutas {
         //Crear vector con nombre apellido pasajero cedula edad
         DefaultTableModel mdlTablaR = new DefaultTableModel(cabeceras,0);
         if (RutaCorrecta!="") {
-        try {
-            FileReader fr = new FileReader(RutaCorrecta);
-            BufferedReader br = new BufferedReader(fr);
-            String d;
-            while ((d=br.readLine())!=null){
-                StringTokenizer dato = new StringTokenizer (d,"|");
-                Vector x = new Vector();
-                while (dato.hasMoreTokens()){
-                    x.addElement(dato.nextToken());
+            try {
+                FileReader fr = new FileReader(RutaCorrecta);
+                BufferedReader br = new BufferedReader(fr);
+                String d;
+                while ((d=br.readLine())!=null){
+                    StringTokenizer dato = new StringTokenizer (d,"|");
+                    Vector x = new Vector();
+                    while (dato.hasMoreTokens()){
+                        x.addElement(dato.nextToken());
+                    }
+                    mdlTablaR.addRow(x);
                 }
-                mdlTablaR.addRow(x);
-            }
-            br.close();
-            fr.close();            
-        }catch (Exception e){
-        JOptionPane.showMessageDialog(null, e);
-        }           
+                br.close();
+                fr.close();            
+            }catch (Exception e){
+            JOptionPane.showMessageDialog(null, e);
+            }           
         }else{
             JOptionPane.showMessageDialog(null, "Selección de Archivo incorrecto, no se mostrará información");
         }
@@ -196,8 +196,8 @@ public class MetodoRutas {
     }
     
     public void EliminarRutas() {
-           
-        //FALTA
+       //Se reusa el método de Editar Rutas para la eliminación (usando archivo TMP)
+       //del registro, donde no se incorpora el regitro a eliminar.
     }
     
     
