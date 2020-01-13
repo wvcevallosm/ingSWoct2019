@@ -447,7 +447,7 @@ public class GUI_VentaDeBoletos extends javax.swing.JFrame {
         // TODO add your handling code here:
         Vector v = new Vector();
         String ruta = txt_busca_ruta.getText();
-        v = buscarR.BuscarRuta(ruta);
+        v = buscarR.BuscarRuta(ruta,2);
         txt_venta_fecha.setText((String) v.elementAt(6));
         txt_venta_costo.setText((String) v.elementAt(4));
         txt_venta_hora.setText((String) v.elementAt (5));

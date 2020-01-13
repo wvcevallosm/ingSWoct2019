@@ -19,12 +19,13 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 public class MetodoRutas {
     String RutaCorrecta="";
     Vector vPrincipal = new Vector();
+    Vector v1 = new Vector();    
 
     /*  Se agregó este método para controlar que el archivo de almacenamiento exista        */
     /*  caso contrario lo selecciona y guarda su respectiva ruta para poder ser utilizada   */
     /*  mas adelante en otros procesos                                                      */   
     public String SeleccionaArchivoCorrecto(){
-        File archivo= new File("C:\\Rutas.txt");
+        File archivo= new File("C:\\ArchivosTexto\\Rutas.txt");
         if (!archivo.exists()){
             JOptionPane.showMessageDialog(null, "Archivo no existe, favor seleccionar");
             JFileChooser seleccionaFile = new JFileChooser();
@@ -40,7 +41,9 @@ public class MetodoRutas {
                 RutaCorrecta="";
             }
         }else{
-            RutaCorrecta="C:\\Rutas.txt";
+            
+            RutaCorrecta="C:\\ArchivosTexto\\Rutas.txt";
+            
         }
         return RutaCorrecta;       
     }//Fin de método seleccionar archivo correcto.
@@ -99,6 +102,8 @@ public class MetodoRutas {
                 }
                 mdlTablaR.addRow(x);
             }
+            br.close();
+            fr.close();            
         }catch (Exception e){
         JOptionPane.showMessageDialog(null, e);
         }           
@@ -108,7 +113,9 @@ public class MetodoRutas {
         return mdlTablaR;
     }
      //Se incorpora nuevo método para validar la Ruta correcta  
-    public Vector BuscarRuta(String unaRuta){
+    public Vector BuscarRuta(String unaRuta, int tipoBusqueda){
+        //Tipo busqueda es 1:Por ID
+        //Tipo busqueda es 2:Por nombre de Ruta
         try {
             RutaCorrecta=SeleccionaArchivoCorrecto();   
             if (RutaCorrecta!="") {
@@ -121,27 +128,72 @@ public class MetodoRutas {
                     while (dato.hasMoreTokens()){
                         x.addElement(dato.nextToken());
                         }
-                            String a = x.elementAt(1).toString();
+                            
+                            String a="";
+                            if(tipoBusqueda==1){
+                               a = x.elementAt(0).toString();                           
+                            }else{
+                               a = x.elementAt(1).toString();                           
+                            }
                             if(a.equals(unaRuta)){
                                 vPrincipal=x;
                                 System.out.println(vPrincipal);     
                     }
-                }br.close();
+                }
+                br.close();
                 fr.close();           
             }else{
                 JOptionPane.showMessageDialog(null, "Selección de Archivo incorrecto, ruta no encontrada");
             }
           }catch (Exception e){
-        JOptionPane.showMessageDialog(null, e);
+            JOptionPane.showMessageDialog(null, e);
+          }       
+          return vPrincipal;
+    }
+    
+    public Vector EditarRutas(String unIdUser) {
+        try{
+            Vector vtmp = new Vector();
+            FileReader fr = new FileReader("C:\\ArchivosTexto\\Rutas.txt");
+            BufferedReader br = new BufferedReader(fr);
+            String d;
+            while ((d=br.readLine())!=null){
+                StringTokenizer dato = new StringTokenizer (d,"|");
+                Vector x = new Vector();
+                while (dato.hasMoreTokens()){
+                    x.addElement(dato.nextToken());
+                }
+                String a = x.elementAt(0).toString();
+                if(!a.equals(unIdUser)){
+                    vtmp.add(d);
+                }
+            }
+            br.close();
+            fr.close();
+            v1=vtmp;
+        }
+        catch (Exception e){
+            JOptionPane.showMessageDialog(null, e);
         }       
-        return vPrincipal;
+        return v1;   
     }
-    
-    public void EditarRutas() {
-           
-        //FALTA
+         public void EditaRutas(Rutas rutas) {
+         try {
+            FileWriter fw = new FileWriter ("C:\\ArchivosTexto\\rutasTMP.txt", true);
+            BufferedWriter bw = new BufferedWriter(fw);
+            PrintWriter pw = new PrintWriter(bw);
+            pw.print(rutas.getId_Ruta());
+            pw.print("|"+rutas.getNombre_Ruta());
+            pw.print("|"+rutas.getOrigen_Ruta());
+            pw.print("|"+rutas.getDestino_Ruta());
+            pw.print("|"+rutas.getCosto_Ruta());
+            pw.print("|"+rutas.getFecha_Ruta());            
+            pw.println("|"+rutas.getHora_Ruta());
+            pw.close();
+        } catch (IOException e){
+            JOptionPane.showMessageDialog(null, e);
+        }         
     }
-    
     
     public void EliminarRutas() {
            

@@ -1,8 +1,12 @@
 package proyect_gui;
 
+import java.io.IOException;
 import java.util.Vector;
 import javax.swing.table.DefaultTableModel;
 import java.util.Date;
+import java.util.StringTokenizer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import proyect_clases.Rutas;
 import proyect_metodos.MetodoRutas;
@@ -14,6 +18,8 @@ public class GUI_RegistroRutas extends javax.swing.JFrame {
     MetodoRutas metodos = new MetodoRutas();
     DefaultTableModel mdlTablaR;
     Vector vCabeceras = new Vector();
+    boolean editarRegistro=false;    
+    Metodos validacion=new Metodos();
     
     public GUI_RegistroRutas() {
         initComponents();
@@ -257,14 +263,14 @@ public class GUI_RegistroRutas extends javax.swing.JFrame {
             }
         });
 
-        btn_r_eliminar.setText("Editar");
+        btn_r_eliminar.setText("Eliminar");
         btn_r_eliminar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btn_r_eliminarActionPerformed(evt);
             }
         });
 
-        btn_r_actializar.setText("Eliminar");
+        btn_r_actializar.setText("Editar");
         btn_r_actializar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btn_r_actializarActionPerformed(evt);
@@ -320,6 +326,8 @@ public class GUI_RegistroRutas extends javax.swing.JFrame {
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 175, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
+
+        btn_r_actializar.getAccessibleContext().setAccessibleDescription("");
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -383,28 +391,98 @@ public class GUI_RegistroRutas extends javax.swing.JFrame {
     
     private void btn_r_guardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_r_guardarActionPerformed
         if (ValidacionIngresos()){
-            mdlTablaR = new DefaultTableModel();
-            int id_r = Integer.parseInt(txt_r_id.getText());
-            String nombre_r = txt_r_nombre.getText();
-            String origen_r = txt_r_origen.getText();
-            String destino_r = txt_r_destino.getText();
-            String costo_r = txt_r_costo.getText();
-            String hora_r = txt_r_hora.getText();
-            String fecha_r = txt_r_fecha.getText();
+            if(editarRegistro){
+            
+                Vector vEditar = new Vector();       
+                String idRuta = txt_r_id.getText();
+                vEditar = metodos.EditarRutas(idRuta);              
+                if (!vEditar.isEmpty()){
+                    try {
+                        //Crear archivo Temporal
+                        if (!validacion.crearArchivoTMP("rutasTMP.txt")){
+                            JOptionPane.showMessageDialog(rootPane, "Error al crear archivo Temporal!");                       
+                            return;
+                        }
+                    } catch (IOException ex) {
+                        Logger.getLogger(GUI_RegistroUsuarios.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                    //Recorrer el vector y agregar los registros
+                    int i=0;
+                    while (i <= vEditar.size()-1){
+                        StringTokenizer linea = new StringTokenizer (vEditar.elementAt(i).toString(),"|");
+                        Vector x = new Vector();
+                        while (linea.hasMoreTokens()){
+                             x.addElement(linea.nextToken());
+                         }                       
+                        int id_u =Integer.parseInt(x.elementAt(0).toString());
+                        ruta.setId_Ruta(id_u);
+                        ruta.setNombre_Ruta(x.elementAt(1).toString());
+                        ruta.setOrigen_Ruta(x.elementAt(2).toString());
+                        ruta.setDestino_Ruta(x.elementAt(3).toString());
+                        ruta.setCosto_Ruta(x.elementAt(4).toString());
+                        ruta.setHora_Ruta(x.elementAt(5).toString());
+                        ruta.setFecha_Ruta(x.elementAt(6).toString());
+                        
+                        metodos.EditaRutas(ruta);
+                        i++;
+                    }//fin de ciclo While
+                    //Eliminar archivo original
+                    boolean resultaElimina=validacion.eliminarArchivoOriginal("C:\\ArchivosTexto\\Rutas.txt");
+                    if(resultaElimina){
+                        //Renombrar archivo temporal
+                        boolean resultadoRenombrar=validacion.renombrarArchivoTmp("C:\\ArchivosTexto\\Rutas.txt","C:\\ArchivosTexto\\rutasTMP.txt");
+                        if (!resultadoRenombrar){
+                            JOptionPane.showMessageDialog(rootPane, "Error al renombrar archivo Temporal!");
+                            return;                       
+                        }
+                    }else{
+                        JOptionPane.showMessageDialog(rootPane, "Error al eliminar archivo Original!");
+                        return;
+                    }
+                    //Agrego el registro que se encuentra en el formulario               
+                    int id_r = Integer.parseInt(txt_r_id.getText());
+                    String nombre_r = txt_r_nombre.getText();
+                    String origen_r = txt_r_origen.getText();
+                    String destino_r = txt_r_destino.getText();
+                    String costo_r = txt_r_costo.getText();
+                    String hora_r = txt_r_hora.getText();
+                    String fecha_r = txt_r_fecha.getText();
+                    ruta.setId_Ruta(id_r);
+                    ruta.setNombre_Ruta(nombre_r);
+                    ruta.setOrigen_Ruta(origen_r);
+                    ruta.setDestino_Ruta(destino_r);
+                    ruta.setCosto_Ruta(costo_r);
+                    ruta.setHora_Ruta(hora_r);
+                    ruta.setFecha_Ruta(fecha_r);
+                    metodos.guardarRutas(ruta);
+                    metodos.guardarArchivoRutas(ruta);
+                    table_rutas.setModel(metodos.listaRutas());       
+                    JOptionPane.showMessageDialog(rootPane, "Registro actualizado Satisfactoriamente");                   
+                }//fin de edición de Registros           
+             }else{
+                mdlTablaR = new DefaultTableModel();
+                int id_r = Integer.parseInt(txt_r_id.getText());
+                String nombre_r = txt_r_nombre.getText();
+                String origen_r = txt_r_origen.getText();
+                String destino_r = txt_r_destino.getText();
+                String costo_r = txt_r_costo.getText();
+                String hora_r = txt_r_hora.getText();
+                String fecha_r = txt_r_fecha.getText();
 
-            ruta.setId_Ruta(id_r);
-            ruta.setNombre_Ruta(nombre_r);
-            ruta.setOrigen_Ruta(origen_r);
-            ruta.setDestino_Ruta(destino_r);
-            ruta.setCosto_Ruta(costo_r);
-            ruta.setHora_Ruta(hora_r);
-            ruta.setFecha_Ruta(fecha_r);
-            metodos.guardarRutas(ruta);
-            metodos.guardarArchivoRutas(ruta);
-            table_rutas.setModel(metodos.listaRutas());       
+                ruta.setId_Ruta(id_r);
+                ruta.setNombre_Ruta(nombre_r);
+                ruta.setOrigen_Ruta(origen_r);
+                ruta.setDestino_Ruta(destino_r);
+                ruta.setCosto_Ruta(costo_r);
+                ruta.setHora_Ruta(hora_r);
+                ruta.setFecha_Ruta(fecha_r);
+                metodos.guardarRutas(ruta);
+                metodos.guardarArchivoRutas(ruta);
+                table_rutas.setModel(metodos.listaRutas());             
+            }//Guardar datos nuevos
+            limpiarTextos();
         } 
     }//GEN-LAST:event_btn_r_guardarActionPerformed
-    
     
     
     private void btn_r_salirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_r_salirActionPerformed
@@ -416,22 +494,161 @@ public class GUI_RegistroRutas extends javax.swing.JFrame {
 
     private void btn_r_nuevoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_r_nuevoActionPerformed
         // Limpia los Jtext:
+        limpiarTextos();
+    }//GEN-LAST:event_btn_r_nuevoActionPerformed
+    private void limpiarTextos(){
         txt_r_id.setText("");
         txt_r_nombre.setText("");
         txt_r_origen.setText("");
         txt_r_destino.setText("");
         txt_r_costo.setText("");
         txt_r_hora.setText("");
-        txt_r_fecha.setText("");
-    }//GEN-LAST:event_btn_r_nuevoActionPerformed
-
+        txt_r_fecha.setText("");   
+        boolean editarRegistro=false;       
+      }
     private void btn_r_eliminarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_r_eliminarActionPerformed
-        // Boton eliminar pasajeros en tabla:
+        // Boton eliminar Rutas en tabla
+        boolean validaCampoID=validacion.esVacio(txt_r_id1.getText());
+        if (validaCampoID==false) {
+            JOptionPane.showMessageDialog(rootPane, "Debe ingresar ID válido a eliminar!");
+            txt_r_id1.requestFocus();
+            return;
+        }
+        //Incorporar código para eliminar registro seleccionado.
+        Vector v = new Vector();       
+        String idRuta = txt_r_id1.getText();
+        v = metodos.BuscarRuta(idRuta,1);
+        if (!v.isEmpty()){
+            txt_r_id.setText((String) v.elementAt(0));
+            txt_r_nombre.setText((String) v.elementAt(1));
+            txt_r_costo.setText((String) v.elementAt(4));
+            txt_r_origen.setText((String) v.elementAt(2));       
+            txt_r_destino.setText((String) v.elementAt(3));
+            txt_r_fecha.setText((String) v.elementAt(6));
+            txt_r_hora.setText((String) v.elementAt(5));
+          
+            if (JOptionPane.showConfirmDialog(rootPane, "Se eliminará el registro, ¿desea continuar?",
+                "Eliminar Registro", JOptionPane.WARNING_MESSAGE, JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION)           
+                eliminarRegistro();
+            limpiarTextos();    
+        }else{
+           JOptionPane.showMessageDialog(rootPane, "No se encuentra el Id a buscar");
+            txt_r_id1.requestFocus();
+        }                
     }//GEN-LAST:event_btn_r_eliminarActionPerformed
 
+    private void eliminarRegistro(){
+        Vector vEditar = new Vector();       
+        String idRuta = txt_r_id.getText();
+        vEditar = metodos.EditarRutas(idRuta);              
+         if (!vEditar.isEmpty()){
+             try {
+                 //Crear archivo Temporal
+                 if (!validacion.crearArchivoTMP("rutasTMP.txt")){
+                     JOptionPane.showMessageDialog(rootPane, "Error al crear archivo Temporal!");                       
+                     return;
+                 }
+             } catch (IOException ex) {
+                 Logger.getLogger(GUI_RegistroUsuarios.class.getName()).log(Level.SEVERE, null, ex);
+             }
+             //Recorrer el vector y agregar los registros
+             int i=0;
+             while (i <= vEditar.size()-1){
+                 StringTokenizer linea = new StringTokenizer (vEditar.elementAt(i).toString(),"|");
+                 Vector x = new Vector();
+                 while (linea.hasMoreTokens()){
+                      x.addElement(linea.nextToken());
+                  }                       
+                    int id_u =Integer.parseInt(x.elementAt(0).toString());
+                    ruta.setId_Ruta(id_u);
+                    ruta.setNombre_Ruta(x.elementAt(1).toString());
+                    ruta.setOrigen_Ruta(x.elementAt(2).toString());
+                    ruta.setDestino_Ruta(x.elementAt(3).toString());
+                    ruta.setCosto_Ruta(x.elementAt(4).toString());
+                    ruta.setHora_Ruta(x.elementAt(5).toString());
+                    ruta.setFecha_Ruta(x.elementAt(6).toString());
+
+                    metodos.EditaRutas(ruta);
+                    i++;
+             }//fin de ciclo While
+             //Eliminar archivo original
+             boolean resultaElimina=validacion.eliminarArchivoOriginal("C:\\ArchivosTexto\\Rutas.txt");
+             if(resultaElimina){
+                 //Renombrar archivo temporal
+                 boolean resultadoRenombrar=validacion.renombrarArchivoTmp("C:\\ArchivosTexto\\Rutas.txt","C:\\ArchivosTexto\\rutasTMP.txt");
+                 if (!resultadoRenombrar){
+                     JOptionPane.showMessageDialog(rootPane, "Error al renombrar archivo Temporal!");
+                     return;                       
+                 }
+             }else{
+                 JOptionPane.showMessageDialog(rootPane, "Error al eliminar archivo Original!");
+                 return;
+             }
+             table_rutas.setModel(metodos.listaRutas());   
+             JOptionPane.showMessageDialog(rootPane, "Registro eliminado Satisfactoriamente");                   
+         }//fin de eliminar Registro    
+    }    
+    
+    
     private void btn_r_actializarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_r_actializarActionPerformed
-        // Carga los datos del archivo de texto con la base de datos de pasajeros:
-        table_rutas.setModel(metodos.listaRutas());
+       // Carga los datos del archivo de texto con la base de datos de Rutas
+       //Validar que exista campo id usuario a Buscar
+        editarRegistro=false;
+        boolean buscaPorID=false;
+        boolean buscaPorNombre=false;
+        boolean validaCampoID=validacion.esVacio(txt_r_id1.getText());
+        if (validaCampoID==false) {
+            validaCampoID=validacion.esVacio(txt_r_nombre1.getText());
+            if (validaCampoID==false){
+                JOptionPane.showMessageDialog(rootPane, "Debe ingresar ID válido o nombre de Ruta a buscar");
+                txt_r_id1.requestFocus();
+                return;
+            }    
+            else{
+                buscaPorNombre=true;
+            }
+        }    
+        else{
+            buscaPorID=true;               
+        }
+        //Incorporar código para búsqueda de Id de Rutas por Id o Nombre antes de Edicion de datos
+        if (buscaPorID) {
+            Vector v = new Vector();       
+            String idRuta = txt_r_id1.getText();
+            v = metodos.BuscarRuta(idRuta,1);
+            if (!v.isEmpty()){
+                txt_r_id.setText((String) v.elementAt(0));
+                txt_r_nombre.setText((String) v.elementAt(1));
+                txt_r_costo.setText((String) v.elementAt(4));
+                txt_r_origen.setText((String) v.elementAt(2));       
+                txt_r_destino.setText((String) v.elementAt(3));
+                txt_r_fecha.setText((String) v.elementAt(6));
+                txt_r_hora.setText((String) v.elementAt(5));
+                editarRegistro=true;
+            }else{
+               JOptionPane.showMessageDialog(rootPane, "No se encuentra el Id a buscar");
+                txt_r_id1.requestFocus();
+            }          
+        } //Fin de búsqueda por ID
+        if (buscaPorNombre){
+            Vector vRuta = new Vector();       
+            String nombreRuta = txt_r_nombre1.getText();
+            vRuta = metodos.BuscarRuta(nombreRuta,2);
+            if (!vRuta.isEmpty()){
+                txt_r_id.setText((String) vRuta.elementAt(0));
+                txt_r_nombre.setText((String) vRuta.elementAt(1));
+                txt_r_costo.setText((String) vRuta.elementAt(4));
+                txt_r_origen.setText((String) vRuta.elementAt(2));       
+                txt_r_destino.setText((String) vRuta.elementAt(3));
+                txt_r_fecha.setText((String) vRuta.elementAt(6));
+                txt_r_hora.setText((String) vRuta.elementAt(5));
+                editarRegistro=true;
+            }else{
+               JOptionPane.showMessageDialog(rootPane, "No se encuentra el nombre deRuta a buscar");
+                txt_r_nombre1.requestFocus();
+            }                 
+         }//fin de búsqueda por Nombre
+        //table_rutas.setModel(metodos.listaRutas());
     }//GEN-LAST:event_btn_r_actializarActionPerformed
 
     //Validación de ingreso de datos numéricos en el campo ID
